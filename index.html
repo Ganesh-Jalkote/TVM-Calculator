@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Time Value of Money Calculator - Assignment 1" />
+  <title>TVM Calculator | Assignment 1</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --border: #dbe2ea;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --success: #087f5b;
+      --danger: #b42318;
+      --shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #172554, #2563eb);
+      color: white;
+      padding: 48px 20px 62px;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: .78rem;
+      font-weight: 800;
+      opacity: .8;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      max-width: 750px;
+      color: #dbeafe;
+      font-size: 1.05rem;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    nav a:hover { background: #eaf1ff; color: var(--accent); }
+
+    main { padding: 32px 0 60px; }
+
+    .intro-grid, .calc-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .intro-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 28px;
+    }
+
+    .calc-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .card.full { grid-column: 1 / -1; }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.22rem;
+    }
+
+    .card .desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .stat {
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: .82rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.13);
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      margin-top: 15px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--accent-dark); }
+
+    .result {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .result-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 12px;
+    }
+
+    .result-value {
+      font-weight: 800;
+      font-size: 1.08rem;
+      margin-top: 2px;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: .84rem;
+      margin-top: 9px;
+      min-height: 1em;
+    }
+
+    .scenario-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .rates {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .rate-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .rate-card strong { font-size: 1.1rem; }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      background: white;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      font-size: .87rem;
+    }
+
+    th {
+      text-align: left;
+      background: #f8fafc;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    td:first-child { text-align: center; }
+
+    footer {
+      padding: 24px 0 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    @media (max-width: 900px) {
+      .intro-grid, .calc-grid { grid-template-columns: 1fr; }
+      .rates { grid-template-columns: repeat(2, 1fr); }
+      .scenario-controls { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid, .result, .rates { grid-template-columns: 1fr; }
+      header { padding-top: 34px; }
+      .card { padding: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <p class="eyebrow">BS3210 • Assignment 1</p>
+      <h1>Time Value of Money Calculator</h1>
+      <p class="subtitle">
+        A browser-based financial calculator covering future value, present value,
+        simple and compound interest, EMI, loan amortization, and scenario analysis.
+      </p>
+    </div>
+  </header>
+
+  <nav>
+    <div class="container nav-inner">
+      <a href="#fv">Future Value</a>
+      <a href="#pv">Present Value</a>
+      <a href="#simple">Simple Interest</a>
+      <a href="#compound">Compound Interest</a>
+      <a href="#emi">EMI</a>
+      <a href="#amortization">Amortization</a>
+      <a href="#scenario">Scenario Analysis</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="intro-grid">
+      <div class="card">
+        <div class="stat-label">Calculators</div>
+        <div class="stat">7</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Scenario Rates</div>
+        <div class="stat">8% • 10% • 12% • 15%</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Runs Fully in Browser</div>
+        <div class="stat">HTML + CSS + JS</div>
+      </div>
+    </section>
+
+    <section class="calc-grid">
+      <article class="card" id="fv">
+        <h2>1. Future Value Calculator</h2>
+        <p class="desc">Calculate the value of a principal amount after a given time period.</p>
+        <div class="form-grid">
+          <div>
+            <label for="fvPrincipal">Principal Amount</label>
+            <input id="fvPrincipal" type="number" min="0" step="0.01" value="10000">
+          </div>
+          <div>
+            <label for="fvRate">Annual Interest Rate (%)</label>
+            <input id="fvRate" type="number" min="0" step="0.01" value="8">
+          </div>
+          <div>
+            <label for="fvYears">Time Period (Years)</label>
+            <input id="fvYears" type="number" min="0" step="0.01" value="5">
+          </div>
+        </div>
+        <button onclick="calcFV()">Calculate</button>
+        <div class="error" id="fvError"></div>
+        <div class="result">
+          <div class="result-box"><div class="stat-label">Future Value</div><div class="result-value" id="fvResult">—</div></div>
+        </div>
+      </article>
+
+      <article class="card" id="pv">
+        <h2>2. Present Value Calculator</h2>
+        <p class="desc">Discount a future amount back to its present value.</p>
+        <div class="form-grid">
+          <div>
+            <label for="pvFuture">Future Value</label>
+            <input id="pvFuture" type="number" min="0" step="0.01" value="14693.28">
+          </div>
+          <div>
+            <label for="pvRate">Discount Rate (%)</label>
+            <input id="pvRate" type="number" min="0" step="0.01" value="8">
+          </div>
+          <div>
+            <label for="pvYears">Time Period (Years)</label>
+            <input id="pvYears" type="number" min="0" step="0.01" value="5">
+          </div>
+        </div>
+        <button onclick="calcPV()">Calculate</button>
+        <div class="error" id="pvError"></div>
+        <div class="result">
+          <div class="result-box"><div class="stat-label">Present Value</div><div class="result-value" id="pvResult">—</div></div>
+        </div>
+      </article>
+
+      <article class="card" id="simple">
+        <h2>3. Simple Interest Calculator</h2>
+        <p class="desc">Calculate interest earned and maturity value using simple interest.</p>
+        <div class="form-grid">
+          <div>
+            <label for="siPrincipal">Principal</label>
+            <input id="siPrincipal" type="number" min="0" step="0.01" value="10000">
+          </div>
+          <div>
+            <label for="siRate">Interest Rate (%)</label>
+            <input id="siRate" type="number" min="0" step="0.01" value="8">
+          </div>
+          <div>
+            <label for="siTime">Time (Years)</label>
+            <input id="siTime" type="number" min="0" step="0.01" value="5">
+          </div>
+        </div>
+        <button onclick="calcSimple()">Calculate</button>
+        <div class="error" id="siError"></div>
+        <div class="result">
+          <div class="result-box"><div class="stat-label">Interest Earned</div><div class="result-value" id="siInterest">—</div></div>
+          <div class="result-box"><div class="stat-label">Maturity Value</div><div class="result-value" id="siMaturity">—</div></div>
+        </div>
+      </article>
+
+      <article class="card" id="compound">
+        <h2>4. Compound Interest Calculator</h2>
+        <p class="desc">Calculate compound interest and maturity value for a selected compounding frequency.</p>
+        <div class="form-grid">
+          <div>
+            <label for="ciPrincipal">Principal</label>
+            <input id="ciPrincipal" type="number" min="0" step="0.01" value="10000">
+          </div>
+          <div>
+            <label for="ciRate">Rate (%)</label>
+            <input id="ciRate" type="number" min="0" step="0.01" value="8">
+          </div>
+          <div>
+            <label for="ciTime">Time (Years)</label>
+            <input id="ciTime" type="number" min="0" step="0.01" value="5">
+          </div>
+          <div>
+            <label for="ciFreq">Compounding Frequency</label>
+            <select id="ciFreq">
+              <option value="1">Annually</option>
+              <option value="2">Half-yearly</option>
+              <option value="4" selected>Quarterly</option>
+              <option value="12">Monthly</option>
+              <option value="365">Daily</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="calcCompound()">Calculate</button>
+        <div class="error" id="ciError"></div>
+        <div class="result">
+          <div class="result-box"><div class="stat-label">Compound Interest</div><div class="result-value" id="ciInterest">—</div></div>
+          <div class="result-box"><div class="stat-label">Maturity Value</div><div class="result-value" id="ciMaturity">—</div></div>
+        </div>
+      </article>
+
+      <article class="card" id="emi">
+        <h2>5. EMI Calculator</h2>
+        <p class="desc">Calculate monthly EMI, total payment, and total interest payable.</p>
+        <div class="form-grid">
+          <div>
+            <label for="emiLoan">Loan Amount</label>
+            <input id="emiLoan" type="number" min="0" step="0.01" value="500000">
+          </div>
+          <div>
+            <label for="emiRate">Interest Rate (%)</label>
+            <input id="emiRate" type="number" min="0" step="0.01" value="10">
+          </div>
+          <div>
+            <label for="emiYears">Loan Tenure (Years)</label>
+            <input id="emiYears" type="number" min="0" step="0.5" value="5">
+          </div>
+        </div>
+        <button onclick="calcEMI()">Calculate</button>
+        <div class="error" id="emiError"></div>
+        <div class="result">
+          <div class="result-box"><div class="stat-label">Monthly EMI</div><div class="result-value" id="emiValue">—</div></div>
+          <div class="result-box"><div class="stat-label">Total Payment</div><div class="result-value" id="emiTotal">—</div></div>
+          <div class="result-box"><div class="stat-label">Total Interest Payable</div><div class="result-value" id="emiInterest">—</div></div>
+          <div class="result-box"><div class="stat-label">Number of Months</div><div class="result-value" id="emiMonths">—</div></div>
+        </div>
+      </article>
+
+      <article class="card full" id="amortization">
+        <h2>6. Loan Amortization Schedule</h2>
+        <p class="desc">Generate the monthly schedule automatically from the same loan inputs used for EMI.</p>
+        <button onclick="calcAmortization()">Generate Schedule</button>
+        <div class="error" id="amortError"></div>
+        <div class="table-wrap">
+          <table id="amortTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Opening Balance</th>
+                <th>Interest</th>
+                <th>Principal Repaid</th>
+                <th>EMI</th>
+                <th>Closing Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="6" style="text-align:center;color:#667085;">Enter loan details above and generate the schedule.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">The final payment is adjusted slightly when necessary to bring the closing balance to zero.</p>
+      </article>
+
+      <article class="card full" id="scenario">
+        <h2>7. Scenario Analysis</h2>
+        <p class="desc">Compare the loan outcome under the required interest-rate scenarios.</p>
+        <div class="scenario-controls">
+          <div>
+            <label for="scLoan">Loan Amount</label>
+            <input id="scLoan" type="number" min="0" step="0.01" value="500000">
+          </div>
+          <div>
+            <label for="scYears">Tenure (Years)</label>
+            <input id="scYears" type="number" min="0.01" step="0.5" value="5">
+          </div>
+          <div>
+            <button onclick="calcScenario()">Compare Rates</button>
+          </div>
+        </div>
+        <div class="error" id="scError"></div>
+        <div class="rates" id="scenarioResults"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      BS3210 • Finance for Engineers, Designers and Professionals • Assignment 1
+    </div>
+  </footer>
+
+  <script>
+    const money = (value) =>
+      new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
+
+    function getNumber(id) {
+      return Number(document.getElementById(id).value);
+    }
+
+    function clearError(id) {
+      document.getElementById(id).textContent = "";
+    }
+
+    function setError(id, msg) {
+      document.getElementById(id).textContent = msg;
+    }
+
+    function validNonNegative(values) {
+      return values.every(v => Number.isFinite(v) && v >= 0);
+    }
+
+    // Future Value: FV = P(1+r)^t
+    function calcFV() {
+      clearError("fvError");
+      const p = getNumber("fvPrincipal");
+      const r = getNumber("fvRate") / 100;
+      const t = getNumber("fvYears");
+      if (!validNonNegative([p, r, t])) return setError("fvError", "Please enter valid non-negative numbers.");
+      const fv = p * Math.pow(1 + r, t);
+      document.getElementById("fvResult").textContent = money(fv);
+    }
+
+    // Present Value: PV = FV / (1+r)^t
+    function calcPV() {
+      clearError("pvError");
+      const fv = getNumber("pvFuture");
+      const r = getNumber("pvRate") / 100;
+      const t = getNumber("pvYears");
+      if (!validNonNegative([fv, r, t])) return setError("pvError", "Please enter valid non-negative numbers.");
+      const pv = fv / Math.pow(1 + r, t);
+      document.getElementById("pvResult").textContent = money(pv);
+    }
+
+    // Simple Interest: SI = P*r*t ; Maturity = P+SI
+    function calcSimple() {
+      clearError("siError");
+      const p = getNumber("siPrincipal");
+      const r = getNumber("siRate") / 100;
+      const t = getNumber("siTime");
+      if (!validNonNegative([p, r, t])) return setError("siError", "Please enter valid non-negative numbers.");
+      const interest = p * r * t;
+      document.getElementById("siInterest").textContent = money(interest);
+      document.getElementById("siMaturity").textContent = money(p + interest);
+    }
+
+    // Compound Interest: A = P(1+r/n)^(nt) ; CI = A-P
+    function calcCompound() {
+      clearError("ciError");
+      const p = getNumber("ciPrincipal");
+      const r = getNumber("ciRate") / 100;
+      const t = getNumber("ciTime");
+      const n = getNumber("ciFreq");
+      if (!validNonNegative([p, r, t]) || !Number.isFinite(n) || n <= 0) {
+        return setError("ciError", "Please enter valid values.");
+      }
+      const maturity = p * Math.pow(1 + r / n, n * t);
+      document.getElementById("ciInterest").textContent = money(maturity - p);
+      document.getElementById("ciMaturity").textContent = money(maturity);
+    }
+
+    function emiFor(loan, annualRate, years) {
+      const months = Math.round(years * 12);
+      if (months <= 0) return { emi: 0, months: 0 };
+      const monthlyRate = annualRate / 100 / 12;
+      if (monthlyRate === 0) return { emi: loan / months, months };
+      const factor = Math.pow(1 + monthlyRate, months);
+      const emi = loan * monthlyRate * factor / (factor - 1);
+      return { emi, months };
+    }
+
+    // EMI = P*r(1+r)^n / ((1+r)^n - 1)
+    function calcEMI() {
+      clearError("emiError");
+      const loan = getNumber("emiLoan");
+      const rate = getNumber("emiRate");
+      const years = getNumber("emiYears");
+      if (!validNonNegative([loan, rate, years]) || years === 0) {
+        return setError("emiError", "Enter a positive loan amount and a tenure greater than 0.");
+      }
+      const { emi, months } = emiFor(loan, rate, years);
+      const total = emi * months;
+      document.getElementById("emiValue").textContent = money(emi);
+      document.getElementById("emiTotal").textContent = money(total);
+      document.getElementById("emiInterest").textContent = money(total - loan);
+      document.getElementById("emiMonths").textContent = String(months);
+    }
+
+    function calcAmortization() {
+      clearError("amortError");
+      const loan = getNumber("emiLoan");
+      const annualRate = getNumber("emiRate");
+      const years = getNumber("emiYears");
+      const body = document.querySelector("#amortTable tbody");
+      body.innerHTML = "";
+
+      if (!validNonNegative([loan, annualRate, years]) || loan <= 0 || years <= 0) {
+        setError("amortError", "Enter a positive loan amount and a tenure greater than 0.");
+        body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#667085;">No schedule generated.</td></tr>';
+        return;
+      }
+
+      const { emi, months } = emiFor(loan, annualRate, years);
+      const monthlyRate = annualRate / 100 / 12;
+      let balance = loan;
+
+      for (let month = 1; month <= months; month++) {
+        const opening = balance;
+        const interest = opening * monthlyRate;
+        let payment = emi;
+        let principal = payment - interest;
+        let closing = opening - principal;
+
+        if (month === months || closing < 0) {
+          payment = opening + interest;
+          principal = opening;
+          closing = 0;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${month}</td>
+          <td>${money(opening)}</td>
+          <td>${money(interest)}</td>
+          <td>${money(principal)}</td>
+          <td>${money(payment)}</td>
+          <td>${money(closing)}</td>
+        `;
+        body.appendChild(row);
+        balance = closing;
+      }
+    }
+
+    function calcScenario() {
+      clearError("scError");
+      const loan = getNumber("scLoan");
+      const years = getNumber("scYears");
+      const rates = [8, 10, 12, 15];
+      const out = document.getElementById("scenarioResults");
+      out.innerHTML = "";
+
+      if (!validNonNegative([loan, years]) || loan <= 0 || years <= 0) {
+        return setError("scError", "Enter a positive loan amount and tenure.");
+      }
+
+      rates.forEach(rate => {
+        const { emi, months } = emiFor(loan, rate, years);
+        const total = emi * months;
+        const interest = total - loan;
+
+        const box = document.createElement("div");
+        box.className = "rate-card";
+        box.innerHTML = `
+          <strong>${rate}%</strong>
+          <div class="stat-label" style="margin-top:8px;">Monthly EMI</div>
+          <div class="result-value">${money(emi)}</div>
+          <div class="stat-label" style="margin-top:8px;">Total Interest</div>
+          <div class="result-value">${money(interest)}</div>
+        `;
+        out.appendChild(box);
+      });
+    }
+
+    // Populate the page with working example outputs on load.
+    window.addEventListener("DOMContentLoaded", () => {
+      calcFV();
+      calcPV();
+      calcSimple();
+      calcCompound();
+      calcEMI();
+      calcScenario();
+    });
+  </script>
+</body>
+</html>
